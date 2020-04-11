@@ -1,6 +1,6 @@
-import express from 'express';
-import cors from 'cors';
-import { uuid } from 'uuidv4';
+const express = require('express');
+const cors = require('cors');
+const { uuid } = require('uuidv4');
 
 const app = express();
 
@@ -15,7 +15,7 @@ const checkRepositoryMiddleware = (request, response, next) => {
   const repositoryIndex = repositories.findIndex((repository) => repository.id === id);
 
   if (repositoryIndex < 0) {
-    return response.status(404).json({ error: 'Repository not found' });
+    return response.status(400).json({ error: 'Repository not found' });
   }
 
   request.middlewareData = {};
@@ -64,9 +64,9 @@ app.put('/repositories/:id', checkRepositoryMiddleware, (request, response) => {
 
 app.delete('/repositories/:id', checkRepositoryMiddleware, (request, response) => {
   const { repositoryIndex } = request.middlewareData;
-  const removedRepository = repositories.splice(repositoryIndex, 1);
+  repositories.splice(repositoryIndex, 1);
 
-  return response.json(removedRepository);
+  return response.status(204).json();
 });
 
 app.post('/repositories/:id/like', checkRepositoryMiddleware, (request, response) => {
@@ -78,4 +78,4 @@ app.post('/repositories/:id/like', checkRepositoryMiddleware, (request, response
   return response.json(repository);
 });
 
-export default app;
+module.exports = app;
