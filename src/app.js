@@ -12,7 +12,7 @@ const repositories = [];
 const checkRepositoryMiddleware = (request, response, next) => {
   const { id } = request.params;
 
-  const repositoryIndex = repositories.findIndex((project) => project.id === id);
+  const repositoryIndex = repositories.findIndex((repository) => repository.id === id);
 
   if (repositoryIndex < 0) {
     return response.status(404).json({ error: 'Repository not found' });
@@ -62,8 +62,11 @@ app.put('/repositories/:id', checkRepositoryMiddleware, (request, response) => {
   return response.json(updatedRepository);
 });
 
-app.delete('/repositories/:id', (request, response) => {
-  // TODO
+app.delete('/repositories/:id', checkRepositoryMiddleware, (request, response) => {
+  const { repositoryIndex } = request.middlewareData;
+  const removedRepository = repositories.splice(repositoryIndex, 1);
+
+  return response.json(removedRepository);
 });
 
 app.post('/repositories/:id/like', (request, response) => {
