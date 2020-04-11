@@ -69,8 +69,13 @@ app.delete('/repositories/:id', checkRepositoryMiddleware, (request, response) =
   return response.json(removedRepository);
 });
 
-app.post('/repositories/:id/like', (request, response) => {
-  // TODO
+app.post('/repositories/:id/like', checkRepositoryMiddleware, (request, response) => {
+  const { repositoryIndex } = request.middlewareData;
+
+  const repository = repositories[repositoryIndex];
+  repository.likes += 1;
+
+  return response.json(repository);
 });
 
 export default app;
