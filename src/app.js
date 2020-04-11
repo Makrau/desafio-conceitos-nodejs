@@ -9,6 +9,23 @@ app.use(cors());
 
 const repositories = [];
 
+const checkRepositoryMiddleware = (request, response, next) => {
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex((project) => project.id === id);
+
+  if (repositoryIndex < 0) {
+    return response.status(404).json({ error: 'Repository not found' });
+  }
+
+  request.middlewareData = {};
+
+  request.middlewareData.repositoryIndex = repositoryIndex;
+  request.middlewareData.repositoryId = id;
+
+  return next();
+};
+
 app.get('/repositories', (request, response) => {
   response.json(repositories);
 });
@@ -28,15 +45,10 @@ app.post('/repositories', (request, response) => {
   response.json(repository);
 });
 
-app.put('/repositories/:id', (request, response) => {
-  const { id } = request.params;
+app.put('/repositories/:id', checkRepositoryMiddleware, (request, response) => {
   const { title, url, techs } = request.body;
+  const { repositoryIndex, repositoryId: id } = request.middlewareData;
 
-  const repositoryIndex = repositories.findIndex((project) => project.id === id);
-
-  if (repositoryIndex < 0) {
-    return response.status(404).json({ error: 'Repository not found' });
-  }
   const oldRepository = repositories[repositoryIndex];
   const updatedRepository = {
     id,
