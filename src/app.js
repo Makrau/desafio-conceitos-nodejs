@@ -29,7 +29,25 @@ app.post('/repositories', (request, response) => {
 });
 
 app.put('/repositories/:id', (request, response) => {
-  // TODO
+  const { id } = request.params;
+  const { title, url, techs } = request.body;
+
+  const repositoryIndex = repositories.findIndex((project) => project.id === id);
+
+  if (repositoryIndex < 0) {
+    return response.status(404).json({ error: 'Repository not found' });
+  }
+  const oldRepository = repositories[repositoryIndex];
+  const updatedRepository = {
+    id,
+    title: title || oldRepository.title,
+    url: url || oldRepository.url,
+    techs: techs || oldRepository.techs,
+  };
+
+  repositories[repositoryIndex] = updatedRepository;
+
+  return response.json(updatedRepository);
 });
 
 app.delete('/repositories/:id', (request, response) => {
